@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Mug Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap core CSS -->
+<!-- link href="./bootstrap-3.0.3/dist/css/bootstrap.css" rel="stylesheet" -->
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!--link href="http://getbootstrap.com/dist/css/bootstrap.css" rel="stylesheet"-->
+<!-- Custom styles for this template -->
+<link href="./starter-template.css" rel="stylesheet">
+<link href="./jumbotron-narrow.css" rel="stylesheet">
+<script language="JavaScript" type="text/javascript">
+function getParams() {
+  var idx = document.URL.indexOf('?');
+  if (idx != -1) {
+    var params = {};
+    var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+    for (var i=0; i<pairs.length; i++) {
+      nameVal = pairs[i].split('=');
+      params[nameVal[0]] = nameVal[1];
+    }
+    return params;
+  }
+}
+var params = getParams();
+</script>
+</head>
+<body>
+    <label for="deviceID" class="col-sm-offset-2 col-sm-2 control-label">deviceID</label>
+    <p></p><p></p>
+    <strong><p class="text-center" id="deviceID"></p></strong>
+</body>
+<script language="JavaScript" type="text/javascript">
+  var openIDDom = document.getElementById('deviceID').innerHTML = params.deviceID;
+  var register = function() {
+    var e = document.getElementById("deviceID");
+    e.select();
+  }
+</script>
+</html>

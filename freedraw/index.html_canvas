@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+    <title>LED Painter</title>
+    <!-- Bootstrap core CSS -->
+    <link href="./bootstrap-3.0.3/dist/css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="./starter-template.css" rel="stylesheet">
+    <link href="./jumbotron-narrow.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <p>Width: <input id="image_width" type="text" name="width" value="16" readonly="readonly"/></p>
+            <p>Height: <input id="image_height" type="text" name="height" value="12" readonly="readonly"/></p>
+            <button class="btn btn-default" type="button" onclick="painter.newImage()">New Image</button><p><p>
+            <input type="checkbox" id="color_red" onClick="painter.setColor()"/><button class="btn btn-danger" type="button">RED</button>
+            <input type="checkbox" id="color_green" onClick="painter.setColor()"/><button class="btn btn-success" type="button">GREEN</button>
+            <input type="checkbox" id="color_blue" onClick="painter.setColor()"/><button class="btn btn-primary" type="button">BLUE</button>
+<!--
+            <button class="btn btn-danger" type="button" onclick="painter.setColor('red')">RED</button>
+            <button class="btn btn-success" type="button" onclick="painter.setColor('green')">GREEN</button>
+            <button class="btn btn-primary" type="button" onclick="painter.setColor('blue')">BLUE</button>
+-->
+        </div>
+    </div>
+    <div class="row">
+        <!--div id="container"></div-->
+        <!--canvas id="container" width=16*parseInt(screen.width/32) height=12*parseInt(screen.width/32)></canvas-->
+        <canvas id="container" width=16 height=12></canvas>
+        <div class="col">
+            <!--<p>Image Directory: <input id="image_dir" type="text"/>
+            Image Name: img <input id="image_name" type="text" value="0" onfocus="if(value=='0'){value='';}" onblur="if(value==''){value='0';}"/> 0,1,2...
+            <button class="btn btn-default" type="button" onclick="painter.upload()">Upload Image</button><p><p>
+            <p>Image Creatorid: <input id="image_creator" type="text"/>-->
+            <p>Mug ID: <input id="image_creator" type="text" value="MUG123456ILC" onfocus="if(value=='MUG123456ILC'){value='';}" onblur="if(value==''){value='MUG123456ILC';}"/>
+            <button class="btn btn-default" type="button" onclick="painter.upload()">Upload Image</button><p>
+        </div>
+    </div>
+    <div class="row">
+        <img id="created_image"/>
+    </div>
+</div>
+<script src="./kinetic-v4.7.4.min.js"></script>
+<script defer="defer">
+    var Request = function(cb) {
+        var self = this;
+        if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            self.xmlhttp = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            self.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        self.xmlhttp.onreadystatechange = cb;
+        self.get = function(url) {
+            self.xmlhttp.open("GET", url, true);
+            self.xmlhttp.send();
+        }
+        self.post = function(url, data) {
+            self.xmlhttp.open("POST", url, true);
+            //self.xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            self.xmlhttp.setRequestHeader("Content-type","application/json; charset=utf-8");
+            self.xmlhttp.send(data);
+        }
+    }
+    //var uploader = new Request(function(){});
+
+    var painter = {
+        color: {
+            on: '#000000',
+            off: '#C0C0C0'
+        },
+        brightness: 8,
+        widthNum: 16,
+        heightNum: 12,
+        currentColor: null
+    };
+
+    function collides(rects, x, y) {
+      var isCollision = null;
+      for (var i = 0, len = rects.length; i < len; i++) {
+        var left = rects[i].x, right = rects[i].x+rects[i].w;
+        var top = rects[i].y, bottom = rects[i].y+rects[i].h;
+        if (right >= x
+          && left <= x
+          && bottom >= y
+          && top <= y) {
+          isCollision = rects[i];
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    var rectangle = [];
+    var colorData = [];
+    var context = null;
+    function fillRectangle(index, color) {
+      context.strokeStyle = 'black';
+      context.strokeRect(rectangle[index].x, rectangle[index].y, rectangle[index].w, rectangle[index].h);
+      context.fillStyle = color;
+      context.fillRect(rectangle[index].x, rectangle[index].y, rectangle[index].w, rectangle[index].h);
+      colorData[parseInt(index/16)][index%16] = color;
+    }
+
+    painter.newImage = function() {
+        var self = this;
+        self.widthNum = document.getElementById("image_width").value;
+        self.heightNum = document.getElementById("image_height").value;
+        console.log("widthNum="+self.widthNum+"; heightNum="+self.heightNum);
+        console.log("screen width="+screen.width+", height="+screen.height);
+
+        var widthRect = parseInt(screen.width/32);
+        // get canvas element.
+        var elem = document.getElementById('container');
+        elem.width = 16*parseInt(screen.width/32);
+        elem.height = 12*parseInt(screen.width/32);
+        elem.style.border = "solid";
+        // check if context exist
+        if (elem && elem.getContext) {
+          // list of rectangles to render
+          for (var j=0; j<12; j++) {
+            colorData[j] = [];
+            for (var i=0; i<16; i++) {
+              rectangle.push({x:i*widthRect, y:j*widthRect, w:widthRect, h:widthRect});
+            }
+          }
+          // get context
+          context = elem.getContext('2d');
+          if (context) {
+            for (var i = 0; i < rectangle.length; i++) {
+              fillRectangle(i, self.color.off);
+            }
+          }
+   
+          var cb1 = function(e) {
+            console.log('start at: ' + e.offsetX + '/' + e.offsetY);
+            var index = parseInt(e.offsetX/widthRect)+parseInt(e.offsetY/widthRect)*16; //collides(rectangle, e.offsetX, e.offsetY);
+            if (index != -1) {
+              console.log('collision: ' + rectangle[index].x + '/' + rectangle[index].y);
+
+              self.drawing = true;
+              //if(node.isOn()) {
+              if(colorData[parseInt(index/16)][index%16] != self.color.off) {
+                fillRectangle(index, self.color.off);
+                self.currentColor = self.color.off;
+              } else {
+                fillRectangle(index, self.color.on);
+                self.currentColor = self.color.on
+              }
+            } else {
+              console.log('no collision');
+            }
+            //e.preventDefault();
+          };
+ 
+          elem.addEventListener('mousedown', cb1, false);
+          elem.addEventListener('touchstart', cb1, false);
+
+          var cb2 = function(e) {
+            console.log('start at: ' + e.offsetX + '/' + e.offsetY);
+            var index = parseInt(e.offsetX/widthRect)+parseInt(e.offsetY/widthRect)*16;
+            if (index != -1) {
+              if(!self.drawing)
+                return;
+              fillRectangle(index, self.currentColor);
+            }
+            //e.preventDefault();
+          };
+          elem.addEventListener('mousemove', cb2, false);
+          elem.addEventListener('touchmove', cb2, false);
+
+          var cb3 = function(e) {
+            self.currentColor = null;
+            self.drawing = false;
+            //e.preventDefault();
+          }
+          elem.addEventListener('mouseup', cb3, false);
+          elem.addEventListener('touchend', cb3, false);
+        }
+
+
+
+        /*self.stage = new Kinetic.Stage({container:'container', width:self.widthNum*40, height:self.heightNum*40});
+        self.layer = new Kinetic.Layer();
+        self.layer.on('mousedown touchstart', function(evt){
+            self.drawing = true;
+            var node = evt.targetNode;
+            if(node.className != 'Rect') {
+                return;
+            }
+            if(node.isOn()) {
+                node.drawColor(self.color.off);
+                self.currentColor = self.color.off;
+            } else {
+                node.drawColor(self.color.on);
+                self.currentColor = self.color.on
+            }
+        });
+        self.layer.on('mousemove touchmove', function(evt){
+            if(!self.drawing)
+                return;
+            var node = evt.targetNode;
+            node.drawColor(self.currentColor);
+        });
+        self.layer.on('mouseup touchend', function(){
+            self.currentColor = null;
+            self.drawing = false;
+        });
+
+        self.data = [];
+        for(var j = 0; j < self.heightNum; j++) {
+            self.data[j] = [];
+            for(var i = 0; i < self.widthNum; i++) {
+                var block = new Kinetic.Rect({
+                    x: i * self.stage.attrs.width / self.widthNum,
+                    y: j * self.stage.attrs.height / self.heightNum,
+                    width: self.stage.attrs.width / self.widthNum,
+                    height: self.stage.attrs.height / self.heightNum,
+                    fill: self.color.off,
+                    stroke: 'black',
+                    strokeWidth: 1
+                });
+                self.layer.add(block);
+                self.data[j][i] = block;
+
+                block.isOn = function() {
+                    return this.attrs.fill != self.color.off;
+                };
+
+                block.drawColor = function(color) {
+                    this.setFill(color);
+                    painter.layer.draw();
+                };
+            }
+        }
+        self.stage.add(self.layer);*/
+    };
+
+    painter.getRect = function(x, y) {
+        return this.data[y][x];
+    };
+
+    painter.setColor = function() {
+        //this.color.on = color;
+        var checkedRed = document.getElementById("color_red").checked;
+        var checkedGreen = document.getElementById("color_green").checked;
+        var checkedBlue = document.getElementById("color_blue").checked;
+        var value = Number(checkedRed)+Number(checkedGreen)*2+Number(checkedBlue)*4;
+
+        switch (value) {
+            case 0: this.color.on = "#000000"; break;
+            case 1: this.color.on = "#ff0000"; break;
+            case 2: this.color.on = "#00ff00"; break;
+            case 3: this.color.on = "#ffff00"; break;
+            case 4: this.color.on = "#0000ff"; break;
+            case 5: this.color.on = "#ff00ff"; break;
+            case 6: this.color.on = "#00ffff"; break;
+            case 7: this.color.on = "#ffffff"; break;
+        }
+    };
+
+    painter.reset = function() {
+        var rect;
+        for(var j = 0; j < this.heightNum; j++) {
+            for(var i = 0; i < this.widthNum; i++) {
+              rect = this.getRect(i, j);
+              rect.setFill(this.color.off);
+            }
+        }
+        this.layer.draw();
+    };
+
+    painter.createImg = function() {
+        var image = {};
+        image.dir = ''; //document.getElementById("image_dir").value;
+        image.name = 'img0'; //'img'+document.getElementById("image_name").value;
+        image.creator = document.getElementById("image_creator").value;
+        image.timeStamp = (new Date()).getTime();
+        image.width = this.widthNum;
+        image.height = this.heightNum;
+        image.data = [];
+
+        for(var j = 0; j < this.heightNum; j++) {
+            for(var i = 0; i < this.widthNum; i++) {
+                rect = this.getRect(i, j);
+                var color = String(rect.attrs.fill);
+                if (color == this.color.off) {
+                    image.data.push(-1);
+                } else {
+                    image.data.push(Number(color[1]=='f')+Number(color[3]=='f')*2+Number(color[5]=='f')*4);
+                }
+            }
+        }
+        if (image.creator == '') {
+          this.imgName = "/predefine/"+image.dir+"/"+image.name+'_'+image.timeStamp+".jpg";
+        } else {
+          this.imgName = "/"+image.creator+"/freeDraw/"+image.name+'_'+image.timeStamp+".jpg";
+        }
+        return image;
+    };
+
+    var uploader = new Request(function() {
+       //console.log("in callback function");
+       var image = document.getElementById("created_image");
+       image.src = painter.imgName;
+       image.width = painter.widthNum*10;
+       image.height = painter.heightNum*10;
+    });
+
+    painter.upload = function() {
+        var data = painter.createImg();
+        if ((data.dir!='' && data.creator!='') || (data.dir=='' && data.creator=='')) {
+          alert('Can\'t set "Image Directory" and "Image Creatorid" at the same time!');
+          return;
+        }
+        if (!data.name.match(/^img[0-9]+$/)) {
+          alert('"Image Name" must be a number!');
+          return;
+        }
+        //uploader.post('/uploadImg', "img="+JSON.stringify(data));
+        uploader.post('/uploadImg', JSON.stringify(data));
+    }
+
+    painter.newImage();
+</script>
+</body>
+</html>

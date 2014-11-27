@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Mug Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap core CSS -->
+<!-- link href="./bootstrap-3.0.3/dist/css/bootstrap.css" rel="stylesheet" -->
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!--link href="http://getbootstrap.com/dist/css/bootstrap.css" rel="stylesheet"-->
+<!-- Custom styles for this template -->
+<link href="./starter-template.css" rel="stylesheet">
+<link href="./jumbotron-narrow.css" rel="stylesheet">
+<script language="JavaScript" type="text/javascript">
+function getParams() {
+  var idx = document.URL.indexOf('?');
+  if (idx != -1) {
+    var params = {};
+    var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+    for (var i=0; i<pairs.length; i++) {
+      nameVal = pairs[i].split('=');
+      params[nameVal[0]] = nameVal[1];
+    }
+    return params;
+  }
+}
+var params = getParams();
+</script>
+</head>
+<body>
+<form class="form-horizontal" role="form">
+  <div class="form-group">
+    <label for="inputOpenID" class="col-sm-offset-2 col-sm-2 control-label">UserID</label>
+    <div class="col-sm-10">
+      <input type="openID" class="form-control" id="inputOpenID" readonly="readonly">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputMugID" class="col-sm-offset-2 col-sm-2 control-label">MugID</label>
+    <div class="col-sm-10">
+      <input type="mugID" class="form-control" id="inputMugID" onfocus="if(value=='MUG123456ILC'){value='';}" onblur="if(value==''){value='MUG123456ILC';}" value="MUG123456ILC">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="button" class="btn btn-default" onclick="register()">Register</button>
+    </div>
+  </div>
+</form>
+<div class="col-sm-offset-2 col-sm-10" id="status"></div>
+</body>
+<script language="JavaScript" type="text/javascript">
+  var openIDDom = document.getElementById('inputOpenID').value = params.openID;
+  var Request = function(cb) {
+    var self = this;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        self.xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        self.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    self.xmlhttp.onreadystatechange = cb;
+    self.get = function(url) {
+        self.xmlhttp.open("GET", url, true);
+        self.xmlhttp.send();
+    }
+    self.post = function(url, data) {
+        self.xmlhttp.open("POST", url, true);
+        //self.xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        self.xmlhttp.setRequestHeader("Content-type","application/json; charset=utf-8");
+        self.xmlhttp.send(data);
+    }
+  }
+  var uploader = new Request(function() {
+    if (uploader.xmlhttp.readyState==4 && uploader.xmlhttp.status==200) {
+      document.getElementById("status").innerHTML=uploader.xmlhttp.responseText;
+    }
+  });
+  var register = function() {
+    document.getElementById("status").innerHTML='';
+    var openID = document.getElementById("inputOpenID").value;
+    var mugID = document.getElementById("inputMugID").value;
+    if (mugID == '') {
+      alert('Please input your mug id');
+      return;
+    }
+    var data = {'openID':openID, 'mugID':mugID};
+    //uploader.post('/uploadImg', "img="+JSON.stringify(data));
+    uploader.post('/linkOpenIDAndMugID', JSON.stringify(data));
+  }
+</script>
+</html>

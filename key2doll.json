@@ -1,0 +1,94 @@
+{
+  "menu": {
+    "button":[
+      {
+        "name":"表情",
+        "sub_button":[
+          {
+            "type":"click",
+            "name":"爱心",
+            "key":"Love"
+          },
+          {
+            "type":"click",
+            "name":"高兴",
+            "key":"Happy"
+          },
+          {
+            "type":"click",
+            "name":"哭",
+            "key":"Cry"
+          },
+          {
+            "type":"click",
+            "name":"愤怒",
+            "key":"Angry"
+          },
+          {
+            "type":"click",
+            "name":"睡觉",
+            "key":"Sleep"
+          }
+        ]
+      },
+      {
+        "name":"玩偶",
+        "sub_button":[
+          {
+            "type":"click",
+            "name":"房子",
+            "key":"House"
+          },
+          {
+            "type":"click",
+            "name":"小狗",
+            "key":"Dog"
+          },
+          {
+            "type":"click",
+            "name":"猴子",
+            "key":"Monkey"
+          },
+          {
+            "type":"click",
+            "name":"HelloKitty",
+            "key":"HelloKitty"
+          },
+          {
+            "type":"click",
+            "name":"大象",
+            "key":"Elephant"
+          }
+        ]
+      },
+      {
+        "type":"click",
+        "name":"注册",
+        "key":"register"
+      }
+    ]
+  },
+  "key2doll": {
+    "Love": "Love",
+    "Happy": "Happy",
+    "Cry": "Cry",
+    "Angry": "Angry",
+    "Sleep": "Sleep",
+    "House": "House",
+    "AngryBird": "AngryBird",
+    "CrayonShinChan": "CrayonShinChan",
+    "Mario": "Mario",
+    "HelloKitty": "HelloKitty",
+    "Cloudy": "Cloudy",
+    "Rainy": "Rainy",
+    "Snowy": "Snowy",
+    "Sunny": "Sunny",
+    "Thundery": "Thundery",
+    "Windy": "Windy",
+    "Email": "Email",
+    "Monkey": "Monkey",
+    "Dog": "Dog",
+    "Clock": "Clock",
+    "Elephant": "Elephant"
+  }
+}

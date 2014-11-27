@@ -1,0 +1,88 @@
+<!DOCTYPE html> 
+<html> 
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <title>Free Draw</title> 
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
+  <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js"></script>
+  <script type="text/javascript" src="./script.js"></script>
+  <link href="./bootstrap-3.0.3/dist/css/bootstrap.css" rel="stylesheet">
+  <link href="./starter-template.css" rel="stylesheet">
+  <link href="./jumbotron-narrow.css" rel="stylesheet">
+</head> 
+<body>
+<div data-role="page" id="theMainPage">
+    <button class="btn btn-default" type="button" onclick="painter.newImage()">New Image</button>
+    <input type="checkbox" id="color_red" onClick="painter.setColor()"/>
+    <label for="color_red" class="col-sm-offset-2 col-sm-2 control-label">RED</label>
+    <input type="checkbox" id="color_green" onClick="painter.setColor()"/>
+    <label for="color_green" class="col-sm-offset-2 col-sm-2 control-label">GREEN</label>
+    <input type="checkbox" id="color_blue" onClick="painter.setColor()"/>
+    <label for="color_blue" class="col-sm-offset-2 col-sm-2 control-label">BLUE</label>
+
+  <div data-role="header" id="theHeader">
+    <!--button class="btn btn-default" type="button" onclick="painter.newImage()">New Image</button>
+    <input type="checkbox" id="color_red" onClick="painter.setColor()"/>
+    <label for="color_red" class="col-sm-offset-2 col-sm-2 control-label">RED</label>
+    <input type="checkbox" id="color_green" onClick="painter.setColor()"/>
+    <label for="color_green" class="col-sm-offset-2 col-sm-2 control-label">GREEN</label>
+    <input type="checkbox" id="color_blue" onClick="painter.setColor()"/>
+    <label for="color_blue" class="col-sm-offset-2 col-sm-2 control-label">BLUE</label-->
+<!--button class="btn btn-danger" type="button">RED</button>
+            <input type="checkbox" id="color_green" onClick="painter.setColor()"/><button class="btn btn-success" type="button">GREEN</button>
+            <input type="checkbox" id="color_blue" onClick="painter.setColor()"/><button class="btn btn-primary" type="button">BLUE</button-->
+<p>Mug ID: <input id="image_creator" type="text" value="MUG123456ILC" onfocus="if(value=='MUG123456ILC'){value='';}" onblur="if(value==''){value='MUG123456ILC';}"/>
+            <button class="btn btn-default" type="button" onclick="painter.upload()">Upload Image</button><p>
+
+		<div data-role="navbar">
+			<ul>
+				<li><a href="javascript: drawingUtil.clear()">Clear <br/>Canvas</a></li>
+			</ul>
+		</div>
+	</div><!-- /header -->
+
+
+<!--div class="container">
+  <div class="row">
+    <div class="col-sm-10">
+      <label for="image_width" class="col-sm-offset-2 col-sm-2 control-label">Width</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="image_width" value="16" readonly="readonly">
+      </div>
+      <label for="image_height" class="col-sm-offset-2 col-sm-2 control-label">Height</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="image_height" value="12" readonly="readonly">
+      </div>
+            <button class="btn btn-default" type="button" onclick="painter.newImage()">New Image</button><p><p>
+            <input type="checkbox" id="color_red" onClick="painter.setColor()"/><button class="btn btn-danger" type="button">RED</button>
+            <input type="checkbox" id="color_green" onClick="painter.setColor()"/><button class="btn btn-success" type="button">GREEN</button>
+            <input type="checkbox" id="color_blue" onClick="painter.setColor()"/><button class="btn btn-primary" type="button">BLUE</button>
+        </div>
+    </div>
+    <div class="row">
+        <div id="container"></div>
+        <div class="col">
+            <p>Mug ID: <input id="image_creator" type="text" value="MUG123456ILC" onfocus="if(value=='MUG123456ILC'){value='';}" onblur="if(value==''){value='MUG123456ILC';}"/>
+            <button class="btn btn-default" type="button" onclick="painter.upload()">Upload Image</button><p>
+        </div>
+    </div>
+    <div class="row">
+        <img id="created_image"/>
+    </div>
+</div-->
+
+	<div data-role="content" id="theContent">	
+		<canvas id="theCanvas">
+			<h1>Your browser does not support the HTML5 Canvas Element.</h1>
+		</canvas>
+	</div><!-- /content -->
+
+    <div class="row">
+        <img id="created_image"/>
+    </div>
+
+</div><!-- /page -->
+</body>
+</html>

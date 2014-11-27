@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bind twitter account and smart mug together!</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span4">
+      Twitter Username:
+    </div>
+    <div class="span8">
+      <input id="twitterUsername" type="text"/>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span4">
+      Smart Mug ID:
+    </div>
+    <div class="span8">
+      <input id="smartMugID" type="text"/>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span4">
+    </div>
+    <div class="span4">
+      <p><button class="btn" type="button" onclick="bind()">Bind</button></p>
+    </div>
+    <div class="span4">
+      <p><button class="btn" type="button" onclick="unbind()">Unbind</button></p>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span12" id="result">
+    </div>
+  </div>
+</div>
+<script>
+  var Request = function(cb) {
+    var self = this;
+    if (window.XMLHttpRequest) {
+      // code for IE7+, Firefox, Chrome, Opera, Safari
+      self.xmlhttp = new XMLHttpRequest();
+    } else {
+      // code for IE6, IE5
+      self.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    self.xmlhttp.onreadystatechange = cb;
+    self.get = function(url) {
+      self.xmlhttp.open("GET", url, true);
+      self.xmlhttp.send();
+    }
+    self.post = function(url, data) {
+      self.xmlhttp.open("POST", url, true);
+      //self.xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+      self.xmlhttp.setRequestHeader("Content-type","application/json; charset=utf-8");
+      self.xmlhttp.send(data);
+    }
+  }
+
+  var isBind = true;
+  var uploader = new Request(function() {
+      if (uploader.xmlhttp.readyState==4 && uploader.xmlhttp.status==200) {
+        if (isBind) {
+          document.getElementById("result").innerHTML="Bind Successfully";
+        } else {
+          document.getElementById("result").innerHTML="Unbind Successfully";
+        }
+      }
+    });
+
+  var bind = function() {
+    isBind = true;
+    document.getElementById("result").innerHTML='';
+    var data = {'action':'bind',
+                'twitter':document.getElementById("twitterUsername").value,
+                'mugID':document.getElementById("smartMugID").value};
+
+    uploader.post('/twitterAccount', JSON.stringify(data));
+  };
+  var unbind = function() {
+    isBind = false;
+    document.getElementById("result").innerHTML='';
+    var data = {'action':'unbind',
+                'twitter':document.getElementById("twitterUsername").value,
+                'mugID':document.getElementById("smartMugID").value};
+    uploader.post('/twitterAccount', JSON.stringify(data));
+  };
+</script>
+</body>
+</html>
