@@ -52,8 +52,9 @@ var twitterText2Img = function(text, social, references) {
     return;
   }
 
-  console.log("references="+references);
+  //console.log("references="+references);
   var user = references.pop();
+  console.log("text2Img:"+text+"-->"+user);
   social.handler(user, appName, social.text2Img, text, null, null, user, appName);
   if (references.length!=0) {
     setTimeout(function(){twitterText2Img(text, social, references);}, 200);
@@ -89,6 +90,7 @@ var getTwitter = function(idx, cb, social) {
       var text = data[0].text;
       //console.log(text);
       if (screenName[idx].msg != text) {
+        console.log("new msg coming:"+text);
         screenName[idx].msg = text;
         cb(text, social, idx);
       }

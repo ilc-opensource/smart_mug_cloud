@@ -11,7 +11,7 @@ var child_process = require('child_process');
 var cloudServer = require('./cloudServer.js').server;
 var cloudPort = require('./cloudServer.js').port;
 
-var isIntelAccount = true;
+var isIntelAccount = false;
 
 var WeChat= function(social) {
   var app = social.app;
@@ -118,19 +118,12 @@ var WeChat= function(social) {
         self.resHandleAudio(body, res, social);
       }
     } else if (body.MsgType == 'image') {
-        /*var timer = (new Date()).getTime();
-        while(true) {
-          if (((new Date()).getTime() - timer)>5000) {
-            break;
-          }
-        }*/
-        console.log('return a image'+body.MediaId);
         var reply = {};
         reply.ToUserName = body.FromUserName;
         reply.FromUserName = body.ToUserName;
         reply.CreateTime = body.CreateTime;
         reply.MsgType = 'image';
-        reply.MediaId = body.MediaId;
+        reply.Image = {'MediaId':body.MediaId};
         var replyXml = js2xml('xml', reply);
         res.send(replyXml);
     } else {
@@ -211,8 +204,10 @@ if (isIntelAccount) {
   WeChat.prototype.appID = 'wx78e4d41c5a3614b2';
   WeChat.prototype.secret = 'a1b107eff798c2ef9168c8b5ada35f0b';
 } else {
-  WeChat.prototype.appID = 'wx4158ccb1f452100d';
-  WeChat.prototype.secret = '5bf3b3fd444cfa787da1a5d0defad3b0';
+  //WeChat.prototype.appID = 'wx4158ccb1f452100d';
+  //WeChat.prototype.secret = '5bf3b3fd444cfa787da1a5d0defad3b0';
+  WeChat.prototype.appID = 'wx769f7cf42d35c0f9';
+  WeChat.prototype.secret = '58119bd73d0ea9984e2da9d032d2b88e';
 }
 WeChat.prototype.redirectPath = 'http://'+cloudServer+':'+cloudPort+'/weiXinMugRegister';
 WeChat.prototype.accessToken = null;

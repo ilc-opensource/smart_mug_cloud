@@ -55,6 +55,13 @@ var Social = function(app) {
     }
   });
 
+  app.get('/getChineseImg', function(req, res) {
+    var text = req.query.text;
+    self.preProcessChinese(text);
+
+    res.send('');
+  });
+
   app.get('/downloadFile', function(req, res) {
     var fileName = req.query.fileName;
     var file = __dirname + '/media/' + fileName;
@@ -116,12 +123,23 @@ var Social = function(app) {
           res.send('upload '+filename+' successfully!\n');
           if (isImage) {
             var fileName = path.join('/', mugID, app, 'image'+timer+'.jpg');
+            var uploadCmd = 'curl -F media=@'+path.join(__dirname, 'media', mugID, app, 'image'+timer+'.jpg')+' "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token='+self.weChatAccessToken+'&type=image"';
           } else if (isAudio) {
             var fileName = path.join('/', mugID, app, 'audio'+timer+'.mp3');
+            var uploadCmd = 'curl -F media=@'+path.join(__dirname, 'media', mugID, app, 'audio'+timer+'.mp3')+' "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token='+self.weChatAccessToken+'&type=voice"';
           } else {
             var fileName = path.join('/', mugID, app, 'video'+timer+'.mp4');
+            var uploadCmd = 'curl -F media=@'+path.join(__dirname, 'media', mugID, app, 'video'+timer+'.mp4')+' "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token='+self.weChatAccessToken+'&type=video"';
           }
-          self.sendToWeChatClient(mugID, isImage, isAudio, isVideo, fileName);
+          child_process.exec(uploadCmd, function(err, stdout, stderr) {
+            try {
+            var mediaID = JSON.parse(stdout).media_id;
+            self.sendToWeChatClient(mugID, isImage, isAudio, isVideo, fileName, mediaID);
+            } catch(ex) {
+              console.log(ex);
+            }
+          });
+          //self.sendToWeChatClient(mugID, isImage, isAudio, isVideo, fileName);
           /*child_process.exec('curl -F media=@'+
             fileName+
             ' "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token='+
@@ -176,34 +194,62 @@ Social.prototype.multiMedia2JSON = function(mediaFile, userID, app) {
   );
 };
 
-Social.prototype.sendToWeChatClient = function(mugID, isImage, isAudio, isVideo, fileName) {
+var isNativeMultimedia = true;
+Social.prototype.sendToWeChatClient = function(mugID, isImage, isAudio, isVideo, fileName, mediaID) {
   if (this.account[mugID] && this.account[mugID].weChat) {
     for (var idx=0; idx<this.account[mugID].weChat.length; idx++) {
-      if (isVideo) {
-        var data = {
-          "touser":this.account[mugID].weChat[idx],
-          "msgtype":"text",
-          "text": {
-            "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?video='+fileName+'">video</a>'
-          }
-        };
-      } else if (isImage) {
-        var data = {
-          "touser":this.account[mugID].weChat[idx],
-          "msgtype":"text",
-          "text": {
-            "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?image='+fileName+'">image</a>'
-          }
-        };
-      } else if (isAudio) {
-        var data = {
-          "touser":this.account[mugID].weChat[idx],
-          "msgtype":"text",
-          "text": {
-            "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?audio='+fileName+'">audio</a>'
-          }
-        };
+      if (isNativeMultimedia) {
+        if (isVideo) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"video",
+            "video": { "media_id":mediaID,
+                       "thumb_media_id":"MEDIA_ID",
+                       "title":"TITLE",
+                       "description":"DESCRIPTION"
+            }
+          };
+        } else if (isImage) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"image",
+            "image": {"media_id":mediaID}
+          };
+        } else if (isAudio) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"voice",
+            "voice": {"media_id":mediaID}
+          };
+        }
+      } else {
+        if (isVideo) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"text",
+            "text": {
+              "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?video='+fileName+'">video</a>'
+            }
+          };
+        } else if (isImage) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"text",
+            "text": {
+              "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?image='+fileName+'">image</a>'
+            }
+          };
+        } else if (isAudio) {
+          var data = {
+            "touser":this.account[mugID].weChat[idx],
+            "msgtype":"text",
+            "text": {
+              "content":'<a href="http://'+cloudServer+':'+cloudPort+'/weChatMultiMedia/?audio='+fileName+'">audio</a>'
+            }
+          };
+        }
       }
+
       var options = {
         hostname: 'api.weixin.qq.com',
         port: 443,

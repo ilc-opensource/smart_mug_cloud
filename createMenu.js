@@ -4,15 +4,17 @@ var path = require('path');
 
 var userDefinedMenu = (JSON.parse(fs.readFileSync(path.join(__dirname, 'key2doll.json'), 'utf8'))).menu;
 
-var isIntelAccount = true;
+var isIntelAccount = false;
 
 var grant_type = "client_credential";
 if (isIntelAccount) {
   var appid = 'wx78e4d41c5a3614b2';
   var secret = 'a1b107eff798c2ef9168c8b5ada35f0b';
 } else {
-  var appid = 'wx4158ccb1f452100d';
-  var secret = '5bf3b3fd444cfa787da1a5d0defad3b0';
+  //var appid = 'wx4158ccb1f452100d';
+  //var secret = '5bf3b3fd444cfa787da1a5d0defad3b0';
+  var appid = 'wx769f7cf42d35c0f9';
+  var secret = '58119bd73d0ea9984e2da9d032d2b88e';
 }
 
 function getAccessToken() {
